@@ -12,10 +12,10 @@ public class ArticleDTO {
     private String name;
     private String category;
     private String brand;
-    private double price;
+    private Double price;
     private Integer quantity;
     private Boolean freeShipping;
-    private int prestige;
+    private Integer prestige;
 
     @Override
     public String toString() {
@@ -30,5 +30,3 @@ public class ArticleDTO {
                 '}';
     }
 }
-
-

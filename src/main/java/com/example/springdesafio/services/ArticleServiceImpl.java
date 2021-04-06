@@ -18,7 +18,6 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleServiceImpl(ArticleRepository articleRepository){
         this.articleRepository = articleRepository;
     }
-
     @Override
     public List<ArticleDTO> getArticles(Map<String, String> params) {
         String order = null;
@@ -28,15 +27,12 @@ public class ArticleServiceImpl implements ArticleService {
             params.remove("order");
         }
         if(params.size() > 2){
-            System.out.println("Hay mas de dos parametros."); // tirar excepcion
+            // Throw exception ParametersExceeded
         } else {
             for(Map.Entry<String,String> entry: params.entrySet()){
-                if(validateParam(entry.getKey())){
-                    parametros.put(entry.getKey(),entry.getValue());
-                } // else { Tirar excepcion (averiguar si se pide que se tire excepcion o que se limpien los parametros) }
+                if(validateParam(entry.getKey())){ parametros.put(entry.getKey(),entry.getValue()); } // else { throw exception (averiguar si se pide que se tire excepcion o que se limpien los parametros) }
             }
-            // Agrego el parámetro order quitado anteriormente.
-            parametros.put("order", order);
+            if(order != null){ parametros.put("order", order); }
         }
         return articleRepository.getArticles(parametros);
     }
@@ -50,11 +46,5 @@ public class ArticleServiceImpl implements ArticleService {
             }
         }
         return isValid;
-    }
-
-    private void mostrarParams(List<String> params){
-        for(String p:params){
-            System.out.println(p);
-        }
     }
 }
