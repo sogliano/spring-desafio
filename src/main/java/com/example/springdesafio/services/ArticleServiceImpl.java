@@ -4,6 +4,7 @@ import com.example.springdesafio.dto.ArticleDTO;
 import com.example.springdesafio.dto.ResponseDTO;
 import com.example.springdesafio.dto.StatusDTO;
 import com.example.springdesafio.dto.TicketDTO;
+import com.example.springdesafio.exceptions.AvailabilityException;
 import com.example.springdesafio.exceptions.InvalidNumberException;
 import com.example.springdesafio.exceptions.InvalidParamException;
 import com.example.springdesafio.exceptions.ParameterQuantityException;
@@ -35,25 +36,32 @@ public class ArticleServiceImpl implements ArticleService{
             throw new ParameterQuantityException();
         } else {
             for(Map.Entry<String,String> entry: params.entrySet()){
-                if(validateParam(entry.getKey())){ parametros.put(entry.getKey(),entry.getValue()); } else { throw new InvalidParamException(); }
+                if(validateParam(entry.getKey())){ parametros.put(entry.getKey(),entry.getValue()); } else { throw new InvalidParamException(entry.getKey()); }
                 if(entry.getKey().equals("productId") || entry.getKey().equals("order") || entry.getKey().equals("price")){
-                    if(!entry.getValue().matches("[0-9]+")){ throw new InvalidNumberException(entry.getKey()); }
+                    if(!entry.getValue().matches("[0-9]+")){ throw new InvalidNumberException(entry.getKey(), entry.getValue()); }
                 }
             }
             // Putting back order to the map.
             if(order != null){ parametros.put("order", order); }
+            if(parametros.containsKey("freeShipping")){
+                if(parametros.get("freeShipping").equals("SI")){
+                    parametros.put("freeShipping", "true");
+                } else {
+                    parametros.put("freeShipping", "false");
+                }
+            }
         }
         return articleRepository.getArticles(parametros);
     }
 
     @Override
-    public ResponseDTO makePurchase(List<ArticleDTO> articles) {
+    public ResponseDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException {
         return new ResponseDTO(articleRepository.makePurchase(articles), new StatusDTO(200, "La solicitud de compra se completó con éxito."));
     }
 
     private boolean validateParam(String p){
-        boolean isValid = false;
         String[] valid = new String[]{"productId","name","category","brand", "price", "freeShipping", "prestige"};
+        boolean isValid = false;
         for(String v: valid){
             if(v.equals(p)){
                 isValid = true;

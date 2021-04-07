@@ -9,13 +9,11 @@ import java.util.List;
 public class TicketDTO {
     private Integer id = 0;
     private List<ArticleDTO> articles;
-    private Double total;
+    private Integer total;
 
-    public TicketDTO(List<ArticleDTO> articles, Double total){
+    public TicketDTO(List<ArticleDTO> articles, Integer total){
         this.id++;
         this.articles = articles;
         this.total = total;
     }
 }
-
-

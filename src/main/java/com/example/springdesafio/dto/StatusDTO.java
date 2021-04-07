@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StatusDTO {
+    private Integer code;
     private String description;
     private String message;
-    private Integer code;
+
 
     public StatusDTO(String description, String message){
         this.description = description;

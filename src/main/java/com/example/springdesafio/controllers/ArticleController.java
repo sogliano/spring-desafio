@@ -2,6 +2,7 @@ package com.example.springdesafio.controllers;
 
 import com.example.springdesafio.dto.StatusDTO;
 import com.example.springdesafio.dto.TicketDTO;
+import com.example.springdesafio.exceptions.AvailabilityException;
 import com.example.springdesafio.exceptions.InvalidParamException;
 import com.example.springdesafio.exceptions.ParameterQuantityException;
 import com.example.springdesafio.services.ArticleServiceImpl;
@@ -25,7 +26,7 @@ public class ArticleController {
     }
 
     @PostMapping("/articles/purchase-request")
-    public ResponseEntity makePurchase(@RequestBody TicketDTO ticket){
+    public ResponseEntity makePurchase(@RequestBody TicketDTO ticket) throws AvailabilityException {
         return new ResponseEntity(articleService.makePurchase(ticket.getArticles()), HttpStatus.OK);
     }
 

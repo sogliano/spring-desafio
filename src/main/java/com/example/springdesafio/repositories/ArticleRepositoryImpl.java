@@ -27,12 +27,12 @@ public class ArticleRepositoryImpl implements ArticleRepository {
             br = new BufferedReader(new FileReader(csvFile));
             while((line = br.readLine()) != null){
                 data = line.split(separator);
+                if(data[6].equals("SI")){ data[6]="true"; } else { data[6]="false"; }
                 if(!data[0].equals("productId")){
                     ArticleDTO article = new ArticleDTO(Integer.valueOf(data[0]), data[1], data[2], data[3],
                             Double.valueOf(data[4].replace("$", "").replace(".", "")),
                             Integer.valueOf(data[5]), Boolean.valueOf(data[6]), Integer.valueOf(data[7].length()));
                     articles.add(article);
-                    System.out.println(article.toString());
                 }
             }
         } catch (Exception e){
@@ -132,7 +132,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
     @Override
     public TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException {
-        Double total = 0.0;
+        double total = 0.0;
         for(ArticleDTO articleRequest : articles){
             for(ArticleDTO articleDB : this.databaseOriginal){
                 if(articleRequest.getProductId() == articleDB.getProductId()){
@@ -142,6 +142,6 @@ public class ArticleRepositoryImpl implements ArticleRepository {
                 }
             }
         }
-        return new TicketDTO(articles, total);
+        return new TicketDTO(articles, (int)total);
     }
 }
