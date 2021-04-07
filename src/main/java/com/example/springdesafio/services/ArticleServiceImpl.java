@@ -1,9 +1,6 @@
 package com.example.springdesafio.services;
 
-import com.example.springdesafio.dto.ArticleDTO;
-import com.example.springdesafio.dto.ResponseDTO;
-import com.example.springdesafio.dto.StatusDTO;
-import com.example.springdesafio.dto.TicketDTO;
+import com.example.springdesafio.dto.*;
 import com.example.springdesafio.exceptions.AvailabilityException;
 import com.example.springdesafio.exceptions.InvalidNumberException;
 import com.example.springdesafio.exceptions.InvalidParamException;
@@ -22,6 +19,7 @@ public class ArticleServiceImpl implements ArticleService{
     public ArticleServiceImpl(ArticleRepository articleRepository){
         this.articleRepository = articleRepository;
     }
+
     @Override
     public List<ArticleDTO> getArticles(Map<String, String> params) throws Exception {
         String order = null;
@@ -63,10 +61,12 @@ public class ArticleServiceImpl implements ArticleService{
         String[] valid = new String[]{"productId","name","category","brand", "price", "freeShipping", "prestige"};
         boolean isValid = false;
         for(String v: valid){
-            if(v.equals(p)){
-                isValid = true;
-            }
+            if(v.equals(p)){ isValid = true; }
         }
         return isValid;
+    }
+
+    public CartDTO getCart() {
+        return articleRepository.getCart();
     }
 }

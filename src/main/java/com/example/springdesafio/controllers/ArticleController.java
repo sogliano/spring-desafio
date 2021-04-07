@@ -25,6 +25,11 @@ public class ArticleController {
         return new ResponseEntity(articleService.getArticles(params), HttpStatus.OK);
     }
 
+    @GetMapping("/articles/cart")
+    public ResponseEntity getArticles() throws Exception {
+        return new ResponseEntity(articleService.getCart(), HttpStatus.OK);
+    }
+
     @PostMapping("/articles/purchase-request")
     public ResponseEntity makePurchase(@RequestBody TicketDTO ticket) throws AvailabilityException {
         return new ResponseEntity(articleService.makePurchase(ticket.getArticles()), HttpStatus.OK);
@@ -38,7 +43,7 @@ public class ArticleController {
 
     @ExceptionHandler(value={InvalidParamException.class})
     public ResponseEntity<StatusDTO> invalidParameterException(InvalidParamException e){
-        StatusDTO statusDTO = new StatusDTO("One .", e.getMessage());
+        StatusDTO statusDTO = new StatusDTO("Invalid parameter.", e.getMessage());
         return new ResponseEntity(statusDTO, HttpStatus.BAD_REQUEST);
     }
 }
