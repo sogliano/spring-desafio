@@ -1,6 +1,8 @@
 package com.example.springdesafio.repositories;
 
 import com.example.springdesafio.dto.ArticleDTO;
+import com.example.springdesafio.dto.TicketDTO;
+import com.example.springdesafio.exceptions.AvailabilityException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,4 +18,5 @@ public interface ArticleRepository {
     List<ArticleDTO> getArticlesByShipping(Boolean freeShipping);
     List<ArticleDTO> getArticlesByPrestige(Integer prestige);
     List<ArticleDTO> sortArticles(Integer orderType);
+    TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException;
 }

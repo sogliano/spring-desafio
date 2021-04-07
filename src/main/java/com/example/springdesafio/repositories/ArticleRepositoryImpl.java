@@ -1,6 +1,8 @@
 package com.example.springdesafio.repositories;
 
 import com.example.springdesafio.dto.ArticleDTO;
+import com.example.springdesafio.dto.TicketDTO;
+import com.example.springdesafio.exceptions.AvailabilityException;
 import com.example.springdesafio.utils.Sorters;
 import org.springframework.stereotype.Repository;
 import java.io.BufferedReader;
@@ -126,5 +128,20 @@ public class ArticleRepositoryImpl implements ArticleRepository {
                 break;
         }
         return databaseAux;
+    }
+
+    @Override
+    public TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException {
+        Double total = 0.0;
+        for(ArticleDTO articleRequest : articles){
+            for(ArticleDTO articleDB : this.databaseOriginal){
+                if(articleRequest.getProductId() == articleDB.getProductId()){
+                    if(articleDB.getQuantity() < articleRequest.getQuantity()){ throw new AvailabilityException(articleRequest.getName()); }
+                    articleDB.setQuantity(articleDB.getQuantity() - articleRequest.getQuantity());
+                    total += articleDB.getPrice() * articleRequest.getQuantity();
+                }
+            }
+        }
+        return new TicketDTO(articles, total);
     }
 }

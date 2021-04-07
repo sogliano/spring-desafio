@@ -1,5 +1,6 @@
 package com.example.springdesafio.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ArticleDTO {
     private Integer productId;
     private String name;
@@ -16,17 +18,4 @@ public class ArticleDTO {
     private Integer quantity;
     private Boolean freeShipping;
     private Integer prestige;
-
-    @Override
-    public String toString() {
-        return "ArticleDTO{" +
-                "name='" + name + '\'' +
-                ", category='" + category + '\'' +
-                ", brand='" + brand + '\'' +
-                ", price=" + price +
-                ", quantity=" + quantity +
-                ", freeShipping=" + freeShipping +
-                ", prestige='" + prestige + '\'' +
-                '}';
-    }
 }

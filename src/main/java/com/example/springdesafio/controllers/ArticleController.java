@@ -1,6 +1,7 @@
 package com.example.springdesafio.controllers;
 
-import com.example.springdesafio.dto.ErrorDTO;
+import com.example.springdesafio.dto.StatusDTO;
+import com.example.springdesafio.dto.TicketDTO;
 import com.example.springdesafio.exceptions.InvalidParamException;
 import com.example.springdesafio.exceptions.ParameterQuantityException;
 import com.example.springdesafio.services.ArticleServiceImpl;
@@ -23,15 +24,20 @@ public class ArticleController {
         return new ResponseEntity(articleService.getArticles(params), HttpStatus.OK);
     }
 
+    @PostMapping("/articles/purchase-request")
+    public ResponseEntity makePurchase(@RequestBody TicketDTO ticket){
+        return new ResponseEntity(articleService.makePurchase(ticket.getArticles()), HttpStatus.OK);
+    }
+
     @ExceptionHandler(value={ParameterQuantityException.class})
-    public ResponseEntity<ErrorDTO> parameterQuantityExceeded(ParameterQuantityException e){
-        ErrorDTO errorDTO = new ErrorDTO("Quantity of parameters exceeded.", e.getMessage());
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<StatusDTO> parameterQuantityExceeded(ParameterQuantityException e){
+        StatusDTO statusDTO = new StatusDTO("Quantity of parameters exceeded.", e.getMessage());
+        return new ResponseEntity(statusDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value={InvalidParamException.class})
-    public ResponseEntity<ErrorDTO> invalidParameterException(InvalidParamException e){
-        ErrorDTO errorDTO = new ErrorDTO("One .", e.getMessage());
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<StatusDTO> invalidParameterException(InvalidParamException e){
+        StatusDTO statusDTO = new StatusDTO("One .", e.getMessage());
+        return new ResponseEntity(statusDTO, HttpStatus.BAD_REQUEST);
     }
 }
