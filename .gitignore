@@ -4,7 +4,7 @@
 *.class
 
 # Log file
-*.log
+*.logF
 
 # BlueJ files
 *.ctxt
