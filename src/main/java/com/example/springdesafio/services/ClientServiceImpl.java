@@ -70,17 +70,14 @@ public class ClientServiceImpl implements ClientService {
         switch(type){
             case "name": if(v.split(" ").length < 2 ){
                 isValid = false;
-                System.out.println("Nombre incorrecto");
             };
             break;
             case "province": if(v.length() < 5){
                 isValid = false;
-                System.out.println("Province incorrecto" + v);
             };
             break;
             case "email": if(!v.matches("^\\S+@\\S+$")){
                 isValid = false;
-                System.out.println("Mail incorrecto" + v);
             }
             break;
         }

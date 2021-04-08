@@ -23,11 +23,13 @@ public class ClientController {
     @Autowired
     private ClientServiceImpl clientService;
 
+    // Obtener los clientes (admite hasta dos filtros).
     @GetMapping("/clients")
     public ResponseEntity getClients(@RequestParam Map<String, String> params) throws Exception {
         return new ResponseEntity(clientService.getClients(params), HttpStatus.OK);
     }
 
+    // Enviar un client y almacenarlo en la BD.
     @PostMapping("/clients/add-client")
     public ResponseEntity addClient(@RequestBody ClientDTO client) throws Exception {
         return new ResponseEntity(clientService.addClient(client), HttpStatus.OK);
@@ -36,26 +38,26 @@ public class ClientController {
     // Excepción: cliente ya existente.
     @ExceptionHandler(value={ClientExistsException.class})
     public ResponseEntity<StatusDTO> clientExistsException(ClientExistsException e){
-        StatusDTO statusDTO = new StatusDTO(300, e.getMessage());
+        StatusDTO statusDTO = new StatusDTO(400, e.getMessage());
         return new ResponseEntity(statusDTO, HttpStatus.BAD_REQUEST);
     }
 
     // Excepción: parámetro ingresado inválido.
     @ExceptionHandler(value={InvalidParamException.class})
     public ResponseEntity<StatusDTO> invalidParameterException(InvalidParamException e){
-        StatusDTO statusDTO = new StatusDTO(300, e.getMessage());
+        StatusDTO statusDTO = new StatusDTO(400, e.getMessage());
         return new ResponseEntity(statusDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value={InvalidClientParamsException.class})
     public ResponseEntity<StatusDTO> invalidClientParamsException(InvalidClientParamsException e){
-        StatusDTO statusDTO = new StatusDTO("Invalid client parameters.", e.getMessage());
+        StatusDTO statusDTO = new StatusDTO(400, e.getMessage());
         return new ResponseEntity(statusDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value={ParameterQuantityException.class})
     public ResponseEntity<StatusDTO> ParameterQuantityException(ParameterQuantityException e){
-        StatusDTO statusDTO = new StatusDTO("Exceeded parameter quantity allowed.", e.getMessage());
+        StatusDTO statusDTO = new StatusDTO(400, e.getMessage());
         return new ResponseEntity(statusDTO, HttpStatus.BAD_REQUEST);
     }
 }

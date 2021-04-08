@@ -136,11 +136,9 @@ public class ClientRepositoryImpl implements ClientRepository {
         String separator = ",";
         String[] data;
         String csvClients = "src/main/resources/dbClientes.csv";
-        System.out.println("Tamo aca en el loadDatabase del Client...");
         try{
             br = new BufferedReader(new FileReader(csvClients));
             while((line = br.readLine()) != null){
-                System.out.println("linea: " + line);
                 data = line.split(separator);
                 if(!data[0].equals("name")){
                     ClientDTO client = new ClientDTO(data[0], data[1], Integer.valueOf(data[2]), data[3]);
