@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -31,7 +32,7 @@ public class ArticleController {
     }
 
     @PostMapping("/articles/purchase-request")
-    public ResponseEntity makePurchase(@RequestBody TicketDTO ticket) throws AvailabilityException {
+    public ResponseEntity makePurchase(@RequestBody TicketDTO ticket) throws AvailabilityException, IOException {
         return new ResponseEntity(articleService.makePurchase(ticket.getArticles()), HttpStatus.OK);
     }
 

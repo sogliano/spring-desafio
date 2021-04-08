@@ -4,8 +4,10 @@ import com.example.springdesafio.dto.ArticleDTO;
 import com.example.springdesafio.dto.CartDTO;
 import com.example.springdesafio.dto.TicketDTO;
 import com.example.springdesafio.exceptions.AvailabilityException;
+import com.example.springdesafio.exceptions.EmptyCartException;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ public interface ArticleRepository {
     List<ArticleDTO> getArticlesByShipping(Boolean freeShipping);
     List<ArticleDTO> getArticlesByPrestige(Integer prestige);
     List<ArticleDTO> sortArticles(Integer orderType);
-    TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException;
-    CartDTO getCart();
+    TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException, IOException;
+    CartDTO getCart() throws EmptyCartException;
+    void writeDatabase(List<ArticleDTO> articles) throws IOException;
 }

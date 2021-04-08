@@ -1,13 +1,11 @@
 package com.example.springdesafio.services;
 
 import com.example.springdesafio.dto.*;
-import com.example.springdesafio.exceptions.AvailabilityException;
-import com.example.springdesafio.exceptions.InvalidNumberException;
-import com.example.springdesafio.exceptions.InvalidParamException;
-import com.example.springdesafio.exceptions.ParameterQuantityException;
+import com.example.springdesafio.exceptions.*;
 import com.example.springdesafio.repositories.ArticleRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +51,8 @@ public class ArticleServiceImpl implements ArticleService{
     }
 
     @Override
-    public ResponseDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException {
-        return new ResponseDTO(articleRepository.makePurchase(articles), new StatusDTO(200, "La solicitud de compra se completó con éxito."));
+    public ResponseTicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException, IOException {
+        return new ResponseTicketDTO(articleRepository.makePurchase(articles), new StatusDTO(200, "La solicitud de compra se completó con éxito."));
     }
 
     private boolean validateParam(String p){
@@ -66,7 +64,7 @@ public class ArticleServiceImpl implements ArticleService{
         return isValid;
     }
 
-    public CartDTO getCart() {
+    public CartDTO getCart() throws EmptyCartException {
         return articleRepository.getCart();
     }
 }

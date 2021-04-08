@@ -4,10 +4,13 @@ import com.example.springdesafio.dto.ArticleDTO;
 import com.example.springdesafio.dto.CartDTO;
 import com.example.springdesafio.dto.TicketDTO;
 import com.example.springdesafio.exceptions.AvailabilityException;
+import com.example.springdesafio.exceptions.EmptyCartException;
 import com.example.springdesafio.utils.Sorters;
 import org.springframework.stereotype.Repository;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 @Repository
@@ -17,13 +20,16 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     private CartDTO cart = new CartDTO();
     private Sorters sorter = new Sorters();
 
-    private List<ArticleDTO> loadDataBase(){
+    public ArticleRepositoryImpl() throws IOException {
+    }
+
+    private List<ArticleDTO> loadDataBase() throws IOException {
         List<ArticleDTO> articles = new ArrayList<>();
-        String csvFile = "src/main/resources/dbProductos.csv";
         BufferedReader br;
         String line;
         String separator = ",";
         String[] data;
+        String csvFile = "src/main/resources/dbProductos.csv";
 
         try{
             br = new BufferedReader(new FileReader(csvFile));
@@ -40,6 +46,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         } catch (Exception e){
             e.printStackTrace();
         }
+        writeDatabase(articles);
         return articles;
     }
 
@@ -133,25 +140,45 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     @Override
-    public TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException {
+    public TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException, IOException {
         float total = 0;
         for(ArticleDTO articleRequest : articles){
             for(ArticleDTO articleDB : this.articlesDatabaseOriginal){
                 if(articleRequest.getProductId() == articleDB.getProductId()){
-                    if(articleDB.getQuantity() < articleRequest.getQuantity()){ throw new AvailabilityException(articleRequest.getName()); }
+                    if(articleDB.getQuantity() < articleRequest.getQuantity()){
+                        throw new AvailabilityException(articleRequest.getName());
+                    }
                     articleDB.setQuantity(articleDB.getQuantity() - articleRequest.getQuantity());
                     total += articleDB.getPrice() * articleRequest.getQuantity();
                 }
             }
         }
+        writeDatabase(this.articlesDatabaseOriginal);
         TicketDTO ticket = new TicketDTO(articles, (int)total);
-        System.out.println("Ticket creado: " + ticket.toString());
         cart.addTicket(ticket);
         return ticket;
     }
 
     @Override
-    public CartDTO getCart() {
+    public CartDTO getCart() throws EmptyCartException {
+        if(cart.getTickets().size() < 1) throw new EmptyCartException();
         return this.cart;
+    }
+
+    public void writeDatabase(List<ArticleDTO> articles) throws IOException {
+        String csvFile = "src/main/resources/dbProductos.csv";
+        FileWriter writer = new FileWriter(csvFile);
+        String collect = "productId,name,category,brand,price,quantity,freeShipping,prestige\n";
+        for(ArticleDTO article: articles) {
+            String prestigeStr = "";
+            for(int i = 0; i < article.getPrestige(); i++){
+                prestigeStr += "*";
+            }
+            collect += article.getProductId() + "," + article.getName() + "," + article.getCategory() + "," + article.getBrand() + "," + "$" + article.getPrice() + "," +
+                    article.getQuantity() + "," + article.getFreeShipping() + "," + prestigeStr + "\n";
+
+        }
+        writer.write(collect);
+        writer.close();
     }
 }
