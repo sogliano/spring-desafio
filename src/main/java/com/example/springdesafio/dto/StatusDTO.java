@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StatusDTO {
-    private Integer code;
+    private Integer statusCode;
     private String description;
     private String message;
 
@@ -21,7 +21,7 @@ public class StatusDTO {
     }
 
     public StatusDTO(Integer code, String message){
-        this.code = code;
+        this.statusCode = code;
         this.message = message;
     }
 }

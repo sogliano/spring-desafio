@@ -18,6 +18,7 @@ public class ArticleServiceImpl implements ArticleService{
         this.articleRepository = articleRepository;
     }
 
+    // Validamos los parámetros antes de consultar a la BD.
     @Override
     public List<ArticleDTO> getArticles(Map<String, String> params) throws Exception {
         String order = null;
@@ -32,7 +33,11 @@ public class ArticleServiceImpl implements ArticleService{
             throw new ParameterQuantityException();
         } else {
             for(Map.Entry<String,String> entry: params.entrySet()){
-                if(validateParam(entry.getKey())){ parametros.put(entry.getKey(),entry.getValue()); } else { throw new InvalidParamException(entry.getKey()); }
+                if(validateParam(entry.getKey())){
+                    parametros.put(entry.getKey(),entry.getValue());
+                } else {
+                    throw new InvalidParamException(entry.getKey());
+                    }
                 if(entry.getKey().equals("productId") || entry.getKey().equals("order") || entry.getKey().equals("price")){
                     if(!entry.getValue().matches("[0-9]+")){ throw new InvalidNumberException(entry.getKey(), entry.getValue()); }
                 }
@@ -51,10 +56,11 @@ public class ArticleServiceImpl implements ArticleService{
     }
 
     @Override
-    public ResponseTicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException, IOException {
+    public ResponseTicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException, IOException, InvalidArticleException {
         return new ResponseTicketDTO(articleRepository.makePurchase(articles), new StatusDTO(200, "La solicitud de compra se completó con éxito."));
     }
 
+    // Validador de Keys de los params.
     private boolean validateParam(String p){
         String[] valid = new String[]{"productId","name","category","brand", "price", "freeShipping", "prestige"};
         boolean isValid = false;

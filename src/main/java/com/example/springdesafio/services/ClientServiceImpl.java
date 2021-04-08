@@ -1,8 +1,11 @@
 package com.example.springdesafio.services;
 
-import com.example.springdesafio.dto.ArticleDTO;
-import com.example.springdesafio.exceptions.InvalidNumberException;
+import com.example.springdesafio.dto.ClientDTO;
+import com.example.springdesafio.dto.ResponseClientDTO;
+import com.example.springdesafio.dto.StatusDTO;
+import com.example.springdesafio.exceptions.InvalidClientParamsException;
 import com.example.springdesafio.exceptions.InvalidParamException;
+import com.example.springdesafio.exceptions.ParameterQuantityException;
 import com.example.springdesafio.repositories.ClientRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,29 +15,48 @@ import java.util.Map;
 
 @Service
 public class ClientServiceImpl implements ClientService {
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
 
+    public ClientServiceImpl(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
+    }
+
+    // Validación de parametros.
     @Override
-    public List<ArticleDTO> getClients(Map<String, String> params) throws Exception {
+    public List<ClientDTO> getClients(Map<String, String> params) throws Exception {
         Map<String,String> parametros = new HashMap<>();
-
-        for(Map.Entry<String,String> entry: params.entrySet()){
-            if(validateParam(entry.getKey())){
-                if(validateValue(entry.getValue(), entry.getKey())){
-                    parametros.put(entry.getKey(),entry.getValue());
-                } else {
+        if(params.size()>2) {
+            throw new ParameterQuantityException();
+        } else {
+            for(Map.Entry<String,String> entry: params.entrySet()){
+                if(!validateParam(entry.getKey())){
                     throw new InvalidParamException(entry.getKey());
                 }
+                if(!validateValue(entry.getValue(), entry.getKey())){
+                    throw new InvalidParamException(entry.getKey());
+                } else {
+                    parametros.put(entry.getKey(),entry.getValue());
+                }
             }
-            else
-                { throw new InvalidParamException(entry.getKey()); }
         }
+
         return clientRepository.getClients(parametros);
     }
 
-    // Validacion de Keys de parametros.
+    @Override
+    public ResponseClientDTO addClient(ClientDTO c) throws Exception {
+        if(c.getName() == null || c.getEmail() == null || c.getCellphone() == null || c.getProvince() == null){
+            throw new InvalidClientParamsException();
+        }
+        if(!validateValue(c.getName(), "name") || !validateValue(c.getEmail(), "email") || !validateValue(c.getProvince(), "province")){
+            throw new InvalidParamException();
+        }
+        return new ResponseClientDTO(clientRepository.addClient(c), new StatusDTO(200, "El cliente fue agregado a la base de datos con éxito."));
+    }
+
+    // Validación de Keys de parámetros.
     private boolean validateParam(String p){
-        String[] valid = new String[]{"name","email","cellphone"};
+        String[] valid = new String[]{"name","email","cellphone","province"};
         boolean isValid = false;
         for(String v: valid){
             if(v.equals(p)){ isValid = true; }
@@ -42,14 +64,23 @@ public class ClientServiceImpl implements ClientService {
         return isValid;
     }
 
-    // Validacion de Name y Email.
+    // Validación de strings.
     private boolean validateValue(String v, String type){
         boolean isValid = true;
         switch(type){
-            case "name": if(v.length() < 2){ isValid = false; };
-            break;
-            case "email": if(!v.matches("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")){
+            case "name": if(v.split(" ").length < 2 ){
                 isValid = false;
+                System.out.println("Nombre incorrecto");
+            };
+            break;
+            case "province": if(v.length() < 5){
+                isValid = false;
+                System.out.println("Province incorrecto" + v);
+            };
+            break;
+            case "email": if(!v.matches("^\\S+@\\S+$")){
+                isValid = false;
+                System.out.println("Mail incorrecto" + v);
             }
             break;
         }

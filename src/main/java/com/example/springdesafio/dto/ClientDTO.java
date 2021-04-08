@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class ClientDTO {
     private String name;
     private String email;
-    private int cellphone;
+    private Integer cellphone;
     private String province;
 }

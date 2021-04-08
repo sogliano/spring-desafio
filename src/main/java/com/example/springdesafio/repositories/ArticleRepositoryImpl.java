@@ -5,6 +5,7 @@ import com.example.springdesafio.dto.CartDTO;
 import com.example.springdesafio.dto.TicketDTO;
 import com.example.springdesafio.exceptions.AvailabilityException;
 import com.example.springdesafio.exceptions.EmptyCartException;
+import com.example.springdesafio.exceptions.InvalidArticleException;
 import com.example.springdesafio.utils.Sorters;
 import org.springframework.stereotype.Repository;
 import java.io.BufferedReader;
@@ -23,33 +24,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     public ArticleRepositoryImpl() throws IOException {
     }
 
-    private List<ArticleDTO> loadDataBase() throws IOException {
-        List<ArticleDTO> articles = new ArrayList<>();
-        BufferedReader br;
-        String line;
-        String separator = ",";
-        String[] data;
-        String csvFile = "src/main/resources/dbProductos.csv";
-
-        try{
-            br = new BufferedReader(new FileReader(csvFile));
-            while((line = br.readLine()) != null){
-                data = line.split(separator);
-                if(data[6].equals("SI")){ data[6]="true"; } else { data[6]="false"; }
-                if(!data[0].equals("productId")){
-                    ArticleDTO article = new ArticleDTO(Integer.valueOf(data[0]), data[1], data[2], data[3],
-                            Double.valueOf(data[4].replace("$", "").replace(".", "")),
-                            Integer.valueOf(data[5]), Boolean.valueOf(data[6]), Integer.valueOf(data[7].length()));
-                    articles.add(article);
-                }
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        writeDatabase(articles);
-        return articles;
-    }
-
+    // Obtener artículos según parámetros de filtro.
     @Override
     public List<ArticleDTO> getArticles(Map<String,String> params) {
         this.articlesDatabaseAux = articlesDatabaseOriginal;
@@ -123,6 +98,11 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         return aux;
     }
 
+    @Override
+    public List<ArticleDTO> getArticlesByParameter(String parameter, String value) {
+        return null;
+    }
+
     // Sort methods:
     @Override
     public List<ArticleDTO> sortArticles(Integer orderType){
@@ -139,17 +119,24 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         return articlesDatabaseAux;
     }
 
+    // Envío de solicitud de compra.
+    // Cada vez que alguien realiza una solicitud de compra, se agrega al carrito y se actualiza el csv de la BD.
     @Override
-    public TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException, IOException {
+    public TicketDTO makePurchase(List<ArticleDTO> articles) throws AvailabilityException, IOException, InvalidArticleException {
         float total = 0;
         for(ArticleDTO articleRequest : articles){
-            for(ArticleDTO articleDB : this.articlesDatabaseOriginal){
-                if(articleRequest.getProductId() == articleDB.getProductId()){
-                    if(articleDB.getQuantity() < articleRequest.getQuantity()){
-                        throw new AvailabilityException(articleRequest.getName());
+            if(!articleExists(articleRequest.getProductId())){
+                throw new InvalidArticleException(articleRequest.getProductId());
+            } else {
+                for(ArticleDTO articleDB : this.articlesDatabaseOriginal){
+                    if(articleRequest.getProductId() == articleDB.getProductId()){
+                        if(articleDB.getQuantity() < articleRequest.getQuantity()){
+                            throw new AvailabilityException(articleRequest.getName());
+                        }
+                        articleRequest.setPrice(null);
+                        articleDB.setQuantity(articleDB.getQuantity() - articleRequest.getQuantity());
+                        total += articleDB.getPrice() * articleRequest.getQuantity();
                     }
-                    articleDB.setQuantity(articleDB.getQuantity() - articleRequest.getQuantity());
-                    total += articleDB.getPrice() * articleRequest.getQuantity();
                 }
             }
         }
@@ -159,12 +146,14 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         return ticket;
     }
 
+    // Retorno del carrito.
     @Override
     public CartDTO getCart() throws EmptyCartException {
         if(cart.getTickets().size() < 1) throw new EmptyCartException();
         return this.cart;
     }
 
+    // Método de update del .csv.
     public void writeDatabase(List<ArticleDTO> articles) throws IOException {
         String csvFile = "src/main/resources/dbProductos.csv";
         FileWriter writer = new FileWriter(csvFile);
@@ -174,11 +163,49 @@ public class ArticleRepositoryImpl implements ArticleRepository {
             for(int i = 0; i < article.getPrestige(); i++){
                 prestigeStr += "*";
             }
-            collect += article.getProductId() + "," + article.getName() + "," + article.getCategory() + "," + article.getBrand() + "," + "$" + article.getPrice() + "," +
+            collect += article.getProductId() + "," + article.getName() + "," + article.getCategory() + "," + article.getBrand() + "," + "$" + Math.round(article.getPrice()) + "," +
                     article.getQuantity() + "," + article.getFreeShipping() + "," + prestigeStr + "\n";
 
         }
         writer.write(collect);
         writer.close();
+    }
+
+    // Método de carga del HashMap de "BD".
+    private List<ArticleDTO> loadDataBase() throws IOException {
+        List<ArticleDTO> articles = new ArrayList<>();
+        BufferedReader br;
+        String line;
+        String separator = ",";
+        String[] data;
+        String csvFile = "src/main/resources/dbProductos.csv";
+
+        try{
+            br = new BufferedReader(new FileReader(csvFile));
+            while((line = br.readLine()) != null){
+                data = line.split(separator);
+                if(data[6].equals("SI")){ data[6]="true"; } else { data[6]="false"; }
+                if(!data[0].equals("productId")){
+                    ArticleDTO article = new ArticleDTO(Integer.valueOf(data[0]), data[1], data[2], data[3],
+                            Double.valueOf(data[4].replace("$", "").replace(".", "")),
+                            Integer.valueOf(data[5]), Boolean.valueOf(data[6]), Integer.valueOf(data[7].length()));
+                    articles.add(article);
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        writeDatabase(articles);
+        return articles;
+    }
+
+    private boolean articleExists(int productId){
+        boolean exists = false;
+        for(ArticleDTO a : articlesDatabaseOriginal){
+            if(a.getProductId() == productId){
+                exists = true;
+            }
+        }
+        return exists;
     }
 }
