@@ -1,0 +1,13 @@
+productId,name,category,brand,price,quantity,freeShipping,prestige
+1,Desmalezadora,Herramientas,Makita,$9600,5,false,****
+2,Taladro,Herramientas,Black & Decker,$12500,7,false,****
+3,Soldadora,Herramientas,Black & Decker,$7215,10,false,***
+4,Zapatillas Deportivas,Deportes,Adidas,$13650,6,false,*****
+5,Zapatillas Deportivas,Deportes,Nike,$14000,4,false,*****
+6,Camiseta,Deportes,Topper,$2300,2,false,***
+7,Redmi Note 9,Celulares,Xiaomi,$40000,15,false,****
+8,Smartwatch,Celulares,Noga,$1900,20,false,**
+9,Remera,Indumentaria,Taverniti,$2300,2,false,***
+10,Chomba,Indumentaria,Taverniti,$2400,6,false,***
+11,Medias,Indumentaria,Mistral,$500,8,false,*
+12,Short,Indumentaria,Lacoste,$3900,9,false,***
