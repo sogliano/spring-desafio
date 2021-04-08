@@ -148,9 +148,6 @@ public class ClientRepositoryImpl implements ClientRepository {
         } catch (Exception e){
             e.printStackTrace();
         }
-        for(ClientDTO c: clients){
-            System.out.println(c.getName());
-        }
         writeDB(clients);
         return clients;
     }
